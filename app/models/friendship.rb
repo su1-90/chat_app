@@ -2,6 +2,7 @@ class Friendship < ApplicationRecord
   enum status: { pending: 0, accepted: 1, blocked: 2 }
 
   belongs_to :user
+  # friend_idはUserモデルの別ユーザーを参照しているため、class_nameでUserと指定する
   belongs_to :friend, class_name: 'User'
 
   # 自分 vs 相手両方向の一意性を担保(オプションでモデルバリデーション)
