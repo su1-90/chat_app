@@ -1,0 +1,6 @@
+<h1>Welcome to ChatApp</h1>
+<% if user_signed_in? %>
+  <p>Hello, <%= current_user.username %>さん</p>
+<% else %>
+  <p><%= link_to "サインアップ", new_user_registration_path %> もしくは <%= link_to "サインイン", new_user_session_path %> してください。</p>
+<% end %>

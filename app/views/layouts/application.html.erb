@@ -11,6 +11,14 @@
   </head>
 
   <body>
+    <% if user_signed_in? %>
+      <%= button_to "ログアウト", destroy_user_session_path, method: :delete, form: { data: { turbo: false } } %>
+    <% else %>
+      <%= link_to "サインアップ", new_user_registration_path %>
+      |
+      <%= link_to "サインイン", new_user_session_path %>
+    <% end %>
+
     <%= yield %>
   </body>
 </html>
