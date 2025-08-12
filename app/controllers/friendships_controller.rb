@@ -18,6 +18,13 @@ class FriendshipsController < ApplicationController
     
     # friendshipsのenumを利用して、簡単に記述
     @sent_requests = current_user.friendships.pending
-    @receives_requests = current_user.inverse_friendships.pending
+    @received_requests = current_user.inverse_friendships&.pending || []
+  end
+
+  # 友達リストの表示
+  def accepted
+    # &:friend → do |f| f.friend end の省略記法.
+    # Friendshipオブジェクトから関連づけられた「friend(User)」だけを取り出す。=> 「承認済みFriendshipの相手ユーザー」だけを集めた配列になる
+    @friends = current_user.friendships.accepted.map(&:friend)
   end
 end
