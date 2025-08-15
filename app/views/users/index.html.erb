@@ -1,6 +1,5 @@
 <h2>ユーザー一覧</h2>
 <% @users.each do |user| %>
-  <% next if current_user == user %>
 
   <% friendship = current_user.friendships.find_by(friend: user) %>
 
