@@ -1,12 +1,18 @@
 class FriendshipsController < ApplicationController
   def create
-    friend = User.find(params[:friend_id])
-    friendship = current_user.friendships.build(friend: friend, status: :pending)
+    # 存在しないIDなら nil を返す
+    friend = User.find_by(id: params[:friend_id])
+    
+    # user が見つからなかった場合のハンドリング
+    unless friend
+      redirect_to users_path, alert: "申請相手のユーザーが見つかりません。"
+      return
+    end
 
+    friendship = current_user.friendships.build(friend: friend, status: :pending)
     if friendship.save
       redirect_to users_path, notice: "#{friend.username} に申請を送りました"
     else
-      # save失敗時の理由表示
       redirect_to users_path, alert: friendship.errors.full_messages.to_sentence
     end
   end
@@ -18,7 +24,11 @@ class FriendshipsController < ApplicationController
     
     # friendshipsのenumを利用して、簡単に記述
     @sent_requests = current_user.friendships.pending
-    @received_requests = current_user.inverse_friendships&.pending || []
+
+    @received_requests = current_user.inverse_friendships.pending
+    # inverse_friendships は常に ActiveRecord::Relation（空の配列相当）を返すため、 &.pending || [] の &. と || [] は冗長
+    # “逆方向の関連がないときに nil” という独自実装がなければ、&. は不要
+    # @received_requests = current_user.inverse_friendships&.pending || []
   end
 
   # 友達リストの表示

@@ -1,21 +1,4 @@
 <h2>ユーザー一覧</h2>
 <% @users.each do |user| %>
-
-  <% friendship = current_user.friendships.find_by(friend: user) %>
-
-  <% if friendship&.pending? %>
-    <p><%= user.username %>（申請中）</p>
-
-  <% elsif friendship&.accepted? %>
-    <p><%= user.username %>（友達）</p>
-
-  <% elsif friendship&.blocked? %>
-    <p><%= user.username %>（申請拒否済み）</p>
-
-  <% else %>
-    <p>
-      <%= user.username %>
-      <%= button_to "申請する", friendships_path(friend_id: user.id), method: :post %>
-    </p>
-  <% end %>
+  <p><%= user.username %> <%= friendship_action(current_user, user) %></p>
 <% end %>

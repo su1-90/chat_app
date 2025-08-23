@@ -17,4 +17,25 @@ class User < ApplicationRecord
             presence: true,
             uniqueness: { case_sensitive: false },
             length: { minimum: 3, maximum: 20 }
+
+  # 送信済みの申請を返す
+  def sent_friendship_to(other_user)
+    friendships.find_by(friend: other_user)
+  end
+
+  # 受信済みの申請を返す
+  def received_friendship_from(other_user)
+    inverse_friendships.find_by(user: other_user)
+  end
+
+  # 申請状態をシンボルで返す（:pending / :accepted / :blocked / nil）
+  def friendship_status_with(other_user)
+    if (f = sent_friendship_to(other_user))
+      f.status.to_sym
+    elsif (f = received_friendship_from(other_user))
+      f.status.to_sym
+    else
+      nil
+    end
+  end
 end
