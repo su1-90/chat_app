@@ -42,7 +42,7 @@ class FriendshipsController < ApplicationController
       if friendship.accepted?
         # 承認済みを削除 = 友達解除
         "友達を解除しました"
-      elsif friendship.pnefing?
+      elsif friendship.pending?
         # 未承認を削除 = 申請拒否 or 申請キャンセル
         friendship.user_id == current_user.id ? "申請を取り消しました" : "申請を拒否しました"
       else

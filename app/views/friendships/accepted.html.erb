@@ -1,0 +1,15 @@
+<h2>友達リスト</h2>
+<% if @friends.any? %>
+  <% @friends.each do |friend| %>
+    <p>
+      ⚫︎ <%= friend.username %>
+      <% if (f = current_user.sent_friendship_to(friend)) %>
+        <%= button_to "解除", friendship_path(f), method: :delete, data: { confirm: "友達を解除しますか？" } %>
+      <% elsif (f = current_user.received_friendship_from(friend)) %>
+        <%= button_to "解除", friendship_path(f), method: :delete, data: { confirm: "友達を解除しますか？" } %>
+      <% end %>
+    </p>
+  <% end %>
+<% else %>
+  <p>友達がいません</p>
+<% end %>
