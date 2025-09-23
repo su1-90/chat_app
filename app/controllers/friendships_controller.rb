@@ -62,4 +62,16 @@ class FriendshipsController < ApplicationController
     # Friendshipオブジェクトから関連づけられた「friend(User)」だけを取り出す。=> 「承認済みFriendshipの相手ユーザー」だけを集めた配列になる
     @friends = current_user.friendships.accepted.includes(:friend).map(&:friend)
   end
+
+  def update
+    friendship = Friendship.find_by(id: params[:id])
+    result, message = FriendshipAcceptor.new(friendship, current_user).call
+
+    if result
+      redirect_to friendships_path, notice: message
+    else
+      redirect_back fallback_location: friendships_path, alert: message
+    end
+  end
+
 end
