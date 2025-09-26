@@ -2,16 +2,8 @@ class FriendshipsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    # 最初に記述したコード
-    # @sent_requests = currnet_user.friendships.where(status: :pending)
-    # @received_requests = current_user.inverse_friendships.where(status: :pending)
-    # friendshipsのenumを利用して、簡単に記述
     @sent_requests = current_user.friendships.pending
-
     @received_requests = current_user.inverse_friendships.pending
-    # inverse_friendships は常に ActiveRecord::Relation（空の配列相当）を返すため、 &.pending || [] の &. と || [] は冗長
-    # “逆方向の関連がないときに nil” という独自実装がなければ、&. は不要
-    # @received_requests = current_user.inverse_friendships&.pending || []
   end
 
   def create
@@ -40,11 +32,13 @@ class FriendshipsController < ApplicationController
 
     label = 
       if friendship.accepted?
-        # 承認済みを削除 = 友達解除
         "友達を解除しました"
       elsif friendship.pending?
-        # 未承認を削除 = 申請拒否 or 申請キャンセル
-        friendship.user_id == current_user.id ? "申請を取り消しました" : "申請を拒否しました"
+        if friendship.user_id == current_user.id
+          "送信した申請をキャンセルしました"
+        else
+          "受信した申請を拒否しました"
+        end
       else
         "関係を削除しました"
       end
