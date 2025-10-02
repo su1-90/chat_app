@@ -1,12 +1,18 @@
 <h2>送信した申請</h2>
 <% @sent_requests.each do |f| %>
-  <p>→ <%= f.friend.username %> （申請中）</p>
+  <p>
+    → <%= f.friend.username %>（申請中）
+    <%= button_to "取り消し", friendship_path(f), method: :delete, data: { confirm: "申請を取り消しますか？" } %>
+  </p>
 <% end %>
 
 <h2>受信した申請</h2>
 <% @received_requests.each do |f| %>
-  <p><%= f.user.username %>
+  <p>
+    <%= f.user.username %>
     <%= button_to "承認", friendship_path(f), method: :patch %>
     <%= button_to "拒否", friendship_path(f), method: :delete, data: { confirm: "本当に拒否しますか？" } %>
   </p>
 <% end %>
+
+<p><%= link_to "友達一覧へ", accepted_friendships_path %></p>
