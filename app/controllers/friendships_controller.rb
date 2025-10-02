@@ -52,9 +52,7 @@ class FriendshipsController < ApplicationController
 
   # 友達リストの表示
   def accepted
-    # &:friend → do |f| f.friend end の省略記法.
-    # Friendshipオブジェクトから関連づけられた「friend(User)」だけを取り出す。=> 「承認済みFriendshipの相手ユーザー」だけを集めた配列になる
-    @friends = current_user.friendships.accepted.includes(:friend).map(&:friend)
+    @friends = current_user.friends
   end
 
   def update
