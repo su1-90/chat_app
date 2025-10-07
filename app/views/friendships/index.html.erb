@@ -2,7 +2,7 @@
 <% @sent_requests.each do |f| %>
   <p>
     → <%= f.friend.username %>（申請中）
-    <%= button_to "取り消し", friendship_path(f), method: :delete, data: { confirm: "申請を取り消しますか？" } %>
+    <%= button_to "取り消し", friendship_path(f), method: :delete, data: { turbo_confirm: "申請を取り消しますか？" } %>
   </p>
 <% end %>
 
@@ -11,7 +11,7 @@
   <p>
     <%= f.user.username %>
     <%= button_to "承認", friendship_path(f), method: :patch %>
-    <%= button_to "拒否", friendship_path(f), method: :delete, data: { confirm: "本当に拒否しますか？" } %>
+    <%= button_to "拒否", reject_friendship_path(f), method: :patch, data: { turbo_confirm: "本当に拒否しますか？" } %>
   </p>
 <% end %>
 

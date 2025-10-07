@@ -1,4 +1,7 @@
 <h2>ユーザー一覧</h2>
 <% @users.each do |user| %>
-  <p><%= user.username %> <%= friendship_action(current_user, user) %></p>
+  <p>
+    <%= user.username %>
+    <%= friendship_action(current_user, user) %>
+  </p>
 <% end %>
