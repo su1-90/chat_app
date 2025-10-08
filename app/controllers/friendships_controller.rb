@@ -66,4 +66,35 @@ class FriendshipsController < ApplicationController
     end
   end
 
+  def reject
+    friendship = Friendship.find_by(id: params[:id])
+
+    unless friendship && friendship.friend_id == current_user.id
+      redirect_back fallback_location: friendships_path, alert: "操作権限がありません。"
+      return
+    end
+
+    if friendship.pending?
+      friendship.update(status: :blocked)
+      redirect_to friendships_path, notice: "申請を拒否しました"
+    else
+      redirect_back fallback_location: friendships_path, alert: "この申請は拒否できません。"
+    end
+  end
+
+  def unblock
+    friendship = Friendship.find_by(id: params[:id])
+
+    unless friendship && friendship.friend_id == current_user.id
+      redirect_back fallback_locationn: friendships_path, alert: "操作権限がありません"
+      return
+    end
+
+    if friendship.blocked?
+      friendship.destroy
+      redirect_to friendships_path, notice: "拒否を解除しました"
+    else
+      redirect_back fallback_location: friendships_path, alert: "この申請は拒否解除できません"
+    end
+  end
 end
