@@ -18,12 +18,6 @@ class User < ApplicationRecord
             uniqueness: { case_sensitive: false },
             length: { minimum: 3, maximum: 20 }
 
-  def friends
-    sent = friendships.accepted.includes(:friend).map(&:friend)
-    received = inverse_friendships.accepted.includes(:user).map(&:user)
-    sent + received
-  end
-
   # 送信済みの申請を返す
   def sent_friendship_to(other_user)
     friendships.find_by(friend: other_user)
