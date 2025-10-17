@@ -5,6 +5,7 @@ class User < ApplicationRecord
   # 自分から送った申請
   has_many :friendships, dependent: :destroy
   has_many :friends, through: :friendships, source: :friend
+  has_many :friend_requests
 
   # 自分への申請(逆方向の関連)
   has_many :inverse_friendships,
@@ -12,6 +13,7 @@ class User < ApplicationRecord
             foreign_key: 'friend_id',
             dependent: :destroy
   has_many :inverse_friends, through: :inverse_friendships, source: :user
+  has_many :received_friend_requests, class_name: "FriendRequest", foreign_key: "friend_id"
 
   validates :username,
             presence: true,

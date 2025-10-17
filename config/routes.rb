@@ -1,18 +1,14 @@
 Rails.application.routes.draw do
-  # get 'users/index'
   root "home#index"
 
   devise_for :users
   resources :users, only: [:index]
-  resources :friendships, only: %i[index create update destroy] do
-    collection do
-      get :accepted
-    end
-    member do
-      patch :reject
-      delete :unblock
-    end
-  end
+
+  # 友達申請の管理
+  resources :friend_requests, only: %i[create update destroy]
+
+  # 友達関係の管理
+  resources :friendships, only: %i[index destroy]
 
   get "up" => "rails/health#show", as: :rails_health_check
 end
