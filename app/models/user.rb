@@ -4,7 +4,6 @@ class User < ApplicationRecord
   
   # 自分から送った友達関係
   has_many :friendships, dependent: :destroy
-  has_many :friends, through: :friendships, source: :friend
 
   # 自分への友達関係
   has_many :inverse_friendships,
