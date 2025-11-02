@@ -2,46 +2,41 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
   
-  # 自分から送った申請
+  # 自分から送った友達関係
   has_many :friendships, dependent: :destroy
-  has_many :friends, through: :friendships, source: :friend
 
-  # 自分への申請(逆方向の関連)
+  # 自分への友達関係
   has_many :inverse_friendships,
-            class_name: 'Friendship',
-            foreign_key: 'friend_id',
-            dependent: :destroy
+           class_name: 'Friendship',
+           foreign_key: 'friend_id',
+           dependent: :destroy
   has_many :inverse_friends, through: :inverse_friendships, source: :user
+
+  # 友達申請
+  has_many :friend_requests, dependent: :destroy
+  has_many :received_friend_requests,
+           class_name: "FriendRequest",
+           foreign_key: "friend_id",
+           dependent: :destroy
 
   validates :username,
             presence: true,
             uniqueness: { case_sensitive: false },
             length: { minimum: 3, maximum: 20 }
 
+  # 現在の友達一覧
   def friends
-    sent = friendships.accepted.includes(:friend).map(&:friend)
-    received = inverse_friendships.accepted.includes(:user).map(&:user)
-    sent + received
+    friendships.includes(:friend).map(&:friend) +
+      inverse_friendships.includes(:user).map(&:user)
   end
 
-  # 送信済みの申請を返す
-  def sent_friendship_to(other_user)
-    friendships.find_by(friend: other_user)
+  # 自分が送った申請（FriendRequest）
+  def sent_request_to(other_user)
+    friend_requests.find_by(friend: other_user)
   end
 
-  # 受信済みの申請を返す
-  def received_friendship_from(other_user)
-    inverse_friendships.find_by(user: other_user)
-  end
-
-  # 申請状態をシンボルで返す（:pending / :accepted / :blocked / nil）
-  def friendship_status_with(other_user)
-    if (f = sent_friendship_to(other_user))
-      f.status.to_sym
-    elsif (f = received_friendship_from(other_user))
-      f.status.to_sym
-    else
-      nil
-    end
+  # 自分が受け取った申請（FriendRequest）
+  def received_request_from(other_user)
+    received_friend_requests.find_by(user: other_user)
   end
 end
