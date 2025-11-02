@@ -1,4 +1,5 @@
 module FriendshipsHelper
+  # ここ修正
   def friendship_action(user, target_user)
     # すでに友達か？
     friendship = Friendship.find_by(user: user, friend: target_user) ||

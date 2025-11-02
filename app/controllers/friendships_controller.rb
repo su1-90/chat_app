@@ -8,17 +8,8 @@ class FriendshipsController < ApplicationController
 
   # 友達解除
   def destroy
-    friendship = Friendship.find_by(id: params[:id])
-
-    unless friendship && [friendship.user_id, friendship.friend_id].include?(current_user.id)
-      redirect_back fallback_location: friendships_path, alert: "操作権限がありません。"
-      return
-    end
-
-    if friendship.destroy
-      redirect_back fallback_location: friendships_path, notice: "友達を解除しました"
-    else
-      redirect_back fallback_location: friendships_path, alert: "解除に失敗しました。"
-    end
+    friendship = current_user.friendships.find(params[:id])
+    friendship.destroy!
+    redirect_to friendships_path, notice: "友達を解除しました"
   end
 end
