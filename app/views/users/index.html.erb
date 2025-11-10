@@ -2,6 +2,19 @@
 <% @users.each do |user| %>
   <p>
     <%= user.username %>
-    <%= friendship_action(current_user, user) %>
+    <% case current_user.friendship_status_with(user) %>
+    <% when :friend %>
+      <span>友達</span>
+    <% when :request_sent %>
+      <span>申請中</span>
+    <% when :request_received %>
+      <%= button_to "承認する",
+                    friend_request_path(current_user.received_request_from(user), status: :accepted),
+                    method: :patch %>
+    <% when :request_rejected %>
+      <span>申請拒否済み</span>
+    <% when :none %>
+      <%= button_to "友達申請", friend_requests_path(friend_id: user.id), method: :post %>
+    <% end %>
   </p>
 <% end %>
