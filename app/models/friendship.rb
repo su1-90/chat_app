@@ -5,6 +5,15 @@ class Friendship < ApplicationRecord
   validates :user_id, uniqueness: { scope: :friend_id }
   validate :not_self
 
+  enum status: { active: 0, inactive: 1 }
+
+  def self.status_between(user, other_user)
+    friendship = find_by(user: user, friend: other_user ) ||
+                  find_by(user: other_user, friend: user)
+    return :none unless friendship
+    friendship.active? ? :friend : :inactive
+  end
+  
   private
   
   def not_self

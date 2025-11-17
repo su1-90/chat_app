@@ -45,19 +45,4 @@ class User < ApplicationRecord
     friends.include?(other_user)
   end
 
-  # 相手との関係状態を返す
-  def friendship_status_with(other_user)
-    return :self if self == other_user
-    return :friend if friend_with?(other_user)
-
-    if sent_request_to(other_user)&.pending?
-      return :request_sent
-    elsif received_request_from(other_user)&.pending?
-      return :request_received
-    elsif sent_request_to(other_user)&.rejected?
-      return :request_rejected
-    end
-
-    :none
-  end
 end
