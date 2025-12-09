@@ -5,6 +5,12 @@ class User < ApplicationRecord
   has_many :friendship_users, dependent: :destroy
   has_many :friendships, through: :friendship_users
 
+  has_many :friend_requests, dependent: :destroy
+  has_many :received_friend_requests,
+            class_name: "FriendRequest",
+            foreign_key: "friend_id",
+            dependent: :destroy
+
   validates :username,
             presence: true,
             uniqueness: { case_sensitive: false },

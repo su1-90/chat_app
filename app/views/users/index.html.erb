@@ -2,7 +2,7 @@
 <% @users.each do |user| %>
   <p>
     <%= user.username %>
-    <% if Friendship.between(current_user, user) == :friend %>
+    <% if current_user.friend_with?(user) %>
       <span>友達</span>
     <% elsif (req = current_user.sent_request_to(user))&.pending? %>
       <span>申請中</span>

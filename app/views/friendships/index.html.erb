@@ -1,13 +1,12 @@
 <h2>友達リスト</h2>
 
 <% if @friends.any? %>
-  <% @friend.each do |friend| %>
+  <% @friends.each do |friend| %>
     <p>
       ⚫︎ <%= friend.username %>
       <% if (f = Friendship.status_between(current_user, friend)) == :friend %>
         <%= button_to "解除",
-                      friendship_path(Friendship.find_by(user: current_user, friend: friend) ||
-                                      Friendship.find_by(user: friend, friend: current_user)),
+                      friendship_path(Friendship.between(current_user, friend)),
                                       method: :delete,
                                       data: { turbo_confirm: "友達を解除しますか？" } %>
       <% end %>
