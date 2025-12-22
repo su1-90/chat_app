@@ -4,9 +4,9 @@
   <% @friends.each do |friend| %>
     <p>
       ⚫︎ <%= friend.username %>
-      <% if (f = Friendship.status_between(current_user, friend)) == :friend %>
+      <% if current_user.friend_with?(friend) %>
         <%= button_to "解除",
-                      friendship_path(Friendship.between(current_user, friend)),
+                      friendship_path(current_user.friendship_with(friend)),
                                       method: :delete,
                                       data: { turbo_confirm: "友達を解除しますか？" } %>
       <% end %>

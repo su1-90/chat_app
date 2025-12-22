@@ -24,8 +24,22 @@ class User < ApplicationRecord
                 .reject { |u| u.id == id }
   end
 
+  # 自分とother_userの間のacitveなFriendshipを1件返す
+  def friendship_with(other_user)
+    my_ids = friendship_users.select(:friendship_id)
+    Friendship.active
+              .joins(:friendship_users)
+              .where(id: my_ids)
+              .where(friendship_users: { user_id: other_user.id })
+              .first
+
+    return nil if other_user == self
+  
+  end
+
+  # 友達かどうか？
   def friend_with?(other_user)
-    Friendship.status_between(self, other_user) == :friend
+    friendship_with(other_user).present?
   end
 
   # 自分が送った申請（FriendRequest）

@@ -15,6 +15,9 @@
                     method: :patch %>
     <% elsif (req = current_user.sent_request_to(user))&.rejected? %>
       <span>申請拒否済み</span>
+      <%= button_to "再申請",
+                    friend_request_path(req, status: :pending),
+                    method: :patch %>
     <% else %>
       <%= button_to "友達申請", friend_requests_path(friend_id: user.id), method: :post %>
     <% end %>

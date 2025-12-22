@@ -3,12 +3,22 @@ class FriendRequestsController < ApplicationController
   def create
     friend = User.find(params[:friend_id])
 
-    @request = current_user.friend_requests.new(friend: friend)
+    # すでに友達なら申請させない
+    if current_user.friendship_with(friend).present?
+      return redirect_to users_path, alert: "すでに友達です"
+    end
 
-    if @request.save
+    request = current_user.friend_requests.find_or_initialize_by(friend: friend)
+
+    # accepted / rejected なら再申請として pending に戻す
+    if request.accepted? || request.rejected?
+      request.status = :pending
+    end
+
+    if request.save
       redirect_to users_path, notice: "友達申請を送信しました"
     else
-      redirect_to users_path, alert: @request.errors.full_messages.to_sentence
+      redirect_to users_path, alert: request.errors.full_messages.to_sentence
     end
   end
 
@@ -17,11 +27,25 @@ class FriendRequestsController < ApplicationController
 
     case params[:status]
     when "accepted"
+      # 受け取った人だけが承認できる
+      return redirect_to(users_path, alert: "権限がありません") unless @friend_request.friend == current_user
+
       accept_request!
       redirect_to users_path, notice: "友達になりました"
+
     when "rejected"
+      return redirect_to(users_path, alert: "権限がありません") unless @friend_request.friend == current_user
+
       @friend_request.update!(status: :rejected)
       redirect_to users_path, notice: "友達申請を拒否しました"
+
+    when "pending"
+      # 再申請=送った人だけが pending にできる
+      return redirect_to(users_path, alert: "権限がありません") unless @friend_request.user == current_user
+
+      @friend_request.update!(status: :pending)
+      redirect_to users_path, notice: "申請を再開しました"
+
     else
       redirect_to users_path, alert: "不正な操作です"
     end

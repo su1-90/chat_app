@@ -9,7 +9,7 @@ class FriendshipsController < ApplicationController
   # 友達解除
   def destroy
     friendship = current_user.friendships.find(params[:id])
-    friendship.update!(status: :inactive, deleted_at: Time.current)
+    friendship.update!(status: :inactive)
 
     redirect_to friendships_path, notice: "友達を解除しました"
   rescue ActiveRecord::RecordNotFound
