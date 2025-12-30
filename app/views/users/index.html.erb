@@ -7,19 +7,23 @@
     <% elsif (req = current_user.sent_request_to(user))&.pending? %>
       <span>申請中</span>
     <% elsif (req = current_user.received_request_from(user))&.pending? %>
-      <%= button_to "承認する",
+      <%= button_to '承認する',
                     friend_request_path(req, status: :accepted),
                     method: :patch %>
-      <%= button_to "拒否する",
+      <%= button_to '拒否する',
                     friend_request_path(req, status: :rejected),
                     method: :patch %>
     <% elsif (req = current_user.sent_request_to(user))&.rejected? %>
       <span>申請拒否済み</span>
-      <%= button_to "再申請",
+      <%= button_to '再申請',
                     friend_request_path(req, status: :pending),
-                    method: :patch %>
+                    method: :patch,
+                    form: { data: { turbo: false } } %>
     <% else %>
-      <%= button_to "友達申請", friend_requests_path(friend_id: user.id), method: :post %>
+      <%= button_to '友達申請', 
+                    friend_requests_path(friend_id: user.id), 
+                    method: :post,
+                    form: { data: { turbo: false } } %>
     <% end %>
   </p>
 <% end %>

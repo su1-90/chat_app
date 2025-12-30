@@ -7,8 +7,8 @@ class User < ApplicationRecord
 
   has_many :friend_requests, dependent: :destroy
   has_many :received_friend_requests,
-            class_name: "FriendRequest",
-            foreign_key: "friend_id",
+            class_name: 'FriendRequest',
+            foreign_key: 'friend_id',
             dependent: :destroy
 
   validates :username,
@@ -24,22 +24,21 @@ class User < ApplicationRecord
                 .reject { |u| u.id == id }
   end
 
-  # 自分とother_userの間のacitveなFriendshipを1件返す
-  def friendship_with(other_user)
-    my_ids = friendship_users.select(:friendship_id)
-    Friendship.active
-              .joins(:friendship_users)
-              .where(id: my_ids)
-              .where(friendship_users: { user_id: other_user.id })
-              .first
-
-    return nil if other_user == self
-  
-  end
-
-  # 友達かどうか？
+  # 友達かどうかの判定
   def friend_with?(other_user)
     friendship_with(other_user).present?
+  end
+
+  # 友達関係のレコード取得
+  def friendship_with(other_user)
+    return if other_user == self
+
+    common_ids = 
+      friendship_users
+        .select(:friendship_id)
+        .where(friendship_id: other_user.friendship_users.select(:friendship_id))
+
+    friendships.active.find_by(id: common_ids)
   end
 
   # 自分が送った申請（FriendRequest）
@@ -51,4 +50,6 @@ class User < ApplicationRecord
   def received_request_from(other_user)
     received_friend_requests.find_by(user: other_user)
   end
+
+
 end

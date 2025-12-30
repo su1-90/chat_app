@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  root "home#index"
+  root 'home#index'
 
   devise_for :users
   resources :users, only: [:index]
@@ -10,5 +10,5 @@ Rails.application.routes.draw do
   # 友達関係の管理
   resources :friendships, only: %i[index destroy]
 
-  get "up" => "rails/health#show", as: :rails_health_check
+  get 'up' => 'rails/health#show', as: :rails_health_check
 end
