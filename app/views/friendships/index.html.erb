@@ -4,10 +4,11 @@
   <% @friends.each do |friend| %>
     <p>
       ⚫︎ <%= friend.username %>
-      <% if (f = Friendship.find_by(user: current_user, friend: friend)) %>
-        <%= button_to "解除", friendship_path(f), method: :delete, data: { turbo_confirm: "友達を解除しますか？" } %>
-      <% elsif (f = Friendship.find_by(user: friend, friend: current_user)) %>
-        <%= button_to "解除", friendship_path(f), method: :delete, data: { turbo_confirm: "友達を解除しますか？" } %>
+      <% if (friendship = @friendships_by_friend_id[friend.id]) %>
+        <%= button_to '解除',
+                      friendship_path(friendship),
+                      method: :delete,
+                      data: { turbo_confirm: '友達を解除しますか？' } %>
       <% end %>
     </p>
   <% end %>

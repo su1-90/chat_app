@@ -2,19 +2,28 @@
 <% @users.each do |user| %>
   <p>
     <%= user.username %>
-    <% case current_user.friendship_status_with(user) %>
-    <% when :friend %>
+    <% if current_user.friend_with?(user) %>
       <span>友達</span>
-    <% when :request_sent %>
+    <% elsif (req = current_user.sent_request_to(user))&.pending? %>
       <span>申請中</span>
-    <% when :request_received %>
-      <%= button_to "承認する",
-                    friend_request_path(current_user.received_request_from(user), status: :accepted),
+    <% elsif (req = current_user.received_request_from(user))&.pending? %>
+      <%= button_to '承認する',
+                    friend_request_path(req, status: :accepted),
                     method: :patch %>
-    <% when :request_rejected %>
+      <%= button_to '拒否する',
+                    friend_request_path(req, status: :rejected),
+                    method: :patch %>
+    <% elsif (req = current_user.sent_request_to(user))&.rejected? %>
       <span>申請拒否済み</span>
-    <% when :none %>
-      <%= button_to "友達申請", friend_requests_path(friend_id: user.id), method: :post %>
+      <%= button_to '再申請',
+                    friend_request_path(req, status: :pending),
+                    method: :patch,
+                    form: { data: { turbo: false } } %>
+    <% else %>
+      <%= button_to '友達申請', 
+                    friend_requests_path(friend_id: user.id), 
+                    method: :post,
+                    form: { data: { turbo: false } } %>
     <% end %>
   </p>
 <% end %>

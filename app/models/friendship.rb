@@ -1,13 +1,7 @@
 class Friendship < ApplicationRecord
-  belongs_to :user
-  belongs_to :friend, class_name: 'User'
+  enum status: { active: 0, inactive: 1 }
 
-  validates :user_id, uniqueness: { scope: :friend_id }
-  validate :not_self
+  has_many :friendship_users, dependent: :destroy
+  has_many :users, through: :friendship_users
 
-  private
-  
-  def not_self
-    errors.add(:friend_id, "に自分は指定できません") if user_id == friend_id  
-  end
 end
