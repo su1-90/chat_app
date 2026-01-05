@@ -1,3 +1,18 @@
+# == Schema Information
+#
+# Table name: users
+#
+#  id                     :bigint           not null, primary key
+#  email                  :string           default(""), not null
+#  encrypted_password     :string           default(""), not null
+#  reset_password_token   :string
+#  reset_password_sent_at :datetime
+#  remember_created_at    :datetime
+#  name                   :string
+#  created_at             :datetime         not null
+#  updated_at             :datetime         not null
+#  username               :string           default(""), not null
+#
 class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
@@ -10,6 +25,11 @@ class User < ApplicationRecord
             class_name: 'FriendRequest',
             foreign_key: 'friend_id',
             dependent: :destroy
+
+  has_many :messages, dependent: :destroy
+
+  has_many :entries, dependent: :destroy
+  has_many :chat_rooms, through: :entries
 
   validates :username,
             presence: true,

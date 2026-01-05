@@ -62,3 +62,5 @@ group :development do
 end
 
 gem 'devise'
+gem 'annotate'
+gem 'rails-mermaid_erd'
