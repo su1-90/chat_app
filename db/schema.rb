@@ -10,9 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_10_135146) do
+ActiveRecord::Schema[7.1].define(version: 2026_01_05_095742) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "chat_rooms", force: :cascade do |t|
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "entries", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "chat_room_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_room_id"], name: "index_entries_on_chat_room_id"
+    t.index ["user_id", "chat_room_id"], name: "index_entries_on_user_id_and_chat_room_id", unique: true
+    t.index ["user_id"], name: "index_entries_on_user_id"
+  end
 
   create_table "friend_requests", force: :cascade do |t|
     t.bigint "user_id", null: false
@@ -41,6 +57,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_10_135146) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "messages", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "chat_room_id", null: false
+    t.text "body"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_room_id"], name: "index_messages_on_chat_room_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -56,8 +82,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_10_135146) do
     t.index ["username"], name: "index_users_on_username", unique: true
   end
 
+  add_foreign_key "entries", "chat_rooms"
+  add_foreign_key "entries", "users"
   add_foreign_key "friend_requests", "users"
   add_foreign_key "friend_requests", "users", column: "friend_id"
   add_foreign_key "friendship_users", "friendships"
   add_foreign_key "friendship_users", "users"
+  add_foreign_key "messages", "chat_rooms"
+  add_foreign_key "messages", "users"
 end

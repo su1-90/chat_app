@@ -1,3 +1,14 @@
+# == Schema Information
+#
+# Table name: friend_requests
+#
+#  id         :bigint           not null, primary key
+#  user_id    :bigint           not null
+#  friend_id  :bigint           not null
+#  status     :integer          default("pending"), not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#
 class FriendRequest < ApplicationRecord
   enum status: { pending: 0, accepted: 1, rejected: 2 }
   
