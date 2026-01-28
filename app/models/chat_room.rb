@@ -14,4 +14,9 @@ class ChatRoom < ApplicationRecord
   has_many :users, through: :entries
   
   validates :name, presence: true
+
+  
+  def member?(user)
+    entries.exists?(user_id: user.id)
+  end
 end
