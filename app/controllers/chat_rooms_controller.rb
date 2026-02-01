@@ -13,18 +13,24 @@ class ChatRoomsController < ApplicationController
   end
 
   def show
-    @chat_room = ChatRoom.find(params[:id]) # 見つからなければApplicationController側へ
+    @chat_room = ChatRoom.find_by(id: params[:id])
+    return redirect_to(chat_rooms_path, alert: 'チャットルームが見つかりません') unless @chat_room
 
     return redirect_to(chat_rooms_path, alert: '権限がありません') unless @chat_room.member?(current_user)
 
-    @messages = @chat_room.messages.includes(:user).order(:created_at)
+    @messages = @chat_room.messages
+                          .includes(:user)
+                          .order(created_at: :desc)
+                          .page(params[:page])
+                          .per(50)
+                          .reverse
     @message = Message.new
   end
 
   private
 
-  def chat_room_params
-    params.require(:chat_room).permit(:name)
-  end
+    def chat_room_params
+      params.require(:chat_room).permit(:name)
+    end
 
 end
