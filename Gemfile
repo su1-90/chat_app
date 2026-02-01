@@ -64,3 +64,4 @@ end
 gem 'devise'
 gem 'annotate'
 gem 'rails-mermaid_erd'
+gem 'kaminari'
