@@ -1,4 +1,6 @@
 class MessagesController < ApplicationController
+  before_action :authenticate_user!
+
   def create
     @chat_room = ChatRoom.find(params[:chat_room_id])
 
@@ -8,11 +10,16 @@ class MessagesController < ApplicationController
     end
 
     @message = @chat_room.messages.build(message_params.merge(user: current_user))
-    
+
     if @message.save
-      redirect_to chat_room_path(@chat_room)
+      redirect_to @chat_room
     else
-      @messages = @chat_room.messages.includes(:user).order(:created_at)
+      # 安定運用できてきたら無限スクロールを検討する
+      @messages = @chat_room.messages
+                            .includes(:user)
+                            .order(created_at: :desc)
+                            .page(params[:page])
+                            .per(50)
       flash.now[:alert] = 'メッセージを送信できませんでした'
       render 'chat_rooms/show', status: :unprocessable_entity
     end

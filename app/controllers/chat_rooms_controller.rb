@@ -1,12 +1,19 @@
 class ChatRoomsController < ApplicationController
+  before_action :authenticate_user!
+
+  def index
+    @chat_room = ChatRoom.new
+    @chat_rooms = get_chat_rooms
+  end
+
   def create
     @chat_room = ChatRoom.new(chat_room_params)
 
     if @chat_room.save
       @chat_room.entries.create!(user: current_user)
-      redirect_to chat_room_path(@chat_room)
+      redirect_to @chat_room, flash: { notice: 'チャットルームを作成しました' }
     else
-      @chat_rooms = ChatRoom.all
+      @chat_rooms = get_chat_rooms
       flash.now[:alert] = 'チャットルームを作成できませんでした'
       render :index, status: :unprocessable_entity
     end
@@ -23,8 +30,7 @@ class ChatRoomsController < ApplicationController
                           .order(created_at: :desc)
                           .page(params[:page])
                           .per(50)
-                          .reverse
-    @message = Message.new
+    @message = @chat_room.messages.build(user: current_user)
   end
 
   private
@@ -33,4 +39,11 @@ class ChatRoomsController < ApplicationController
       params.require(:chat_room).permit(:name)
     end
 
+    def get_chat_rooms
+      current_user.chat_rooms
+                  .distinct
+                  .order(created_at: :desc)
+                  .page(params[:page])
+                  .per(50)
+    end
 end
