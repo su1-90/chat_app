@@ -19,4 +19,12 @@ class ChatRoom < ApplicationRecord
   def member?(user)
     entries.exists?(user_id: user.id)
   end
+
+  def messages_for_display(page:, per_page:)
+    messages
+      .includes(:user)
+      .order(created_at: :desc)
+      .page(page)
+      .per(per_page)
+  end
 end
