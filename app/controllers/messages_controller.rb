@@ -15,7 +15,7 @@ class MessagesController < ApplicationController
       redirect_to @chat_room
     else
       # 安定運用できてきたら無限スクロールを検討する
-      @messages = @chat_room.messages_for_display(page: params[:page], per_page: 50)
+      @messages = @chat_room.messages_for_display(page: params[:page])
       flash.now[:alert] = 'メッセージを送信できませんでした'
       render 'chat_rooms/show', status: :unprocessable_entity
     end
@@ -24,8 +24,8 @@ class MessagesController < ApplicationController
   
   private
   
-  def message_params
-    params.require(:message).permit(:body)
-  end
+    def message_params
+      params.require(:message).permit(:body)
+    end
   
 end

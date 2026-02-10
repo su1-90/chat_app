@@ -25,7 +25,7 @@ class ChatRoomsController < ApplicationController
 
     return redirect_to(chat_rooms_path, alert: '権限がありません') unless @chat_room.member?(current_user)
 
-    @messages = @chat_room.messages_for_display(page: params[:page], per_page: 50)
+    @messages = @chat_room.messages_for_display(page: params[:page])
 
     @message = @chat_room.messages.build(user: current_user)
   end
@@ -41,6 +41,6 @@ class ChatRoomsController < ApplicationController
                   .distinct
                   .order(created_at: :desc)
                   .page(params[:page])
-                  .per(50)
+                  .per(ChatRoom::MESSAGES_PER_PAGE)
     end
 end
