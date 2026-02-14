@@ -3,7 +3,7 @@ class ChatRoomsController < ApplicationController
 
   def index
     @chat_room = ChatRoom.new
-    @chat_rooms = get_chat_rooms
+    @chat_rooms = list_chat_rooms
   end
 
   def create
@@ -13,19 +13,19 @@ class ChatRoomsController < ApplicationController
       @chat_room.entries.create!(user: current_user)
       redirect_to @chat_room, flash: { notice: 'チャットルームを作成しました' }
     else
-      @chat_rooms = get_chat_rooms
+      @chat_rooms = list_chat_rooms
       flash.now[:alert] = 'チャットルームを作成できませんでした'
       render :index, status: :unprocessable_entity
     end
   end
 
   def show
-    @chat_room = ChatRoom.find_by(id: params[:id])
+    @chat_room = ChatRoom.find_by(id: chat_room_id)
     return redirect_to(chat_rooms_path, alert: 'チャットルームが見つかりません') unless @chat_room
 
     return redirect_to(chat_rooms_path, alert: '権限がありません') unless @chat_room.member?(current_user)
 
-    @messages = @chat_room.messages_for_display(page: params[:page])
+    @messages = @chat_room.messages_for_display(page: page)
 
     @message = @chat_room.messages.build(user: current_user)
   end
@@ -36,11 +36,19 @@ class ChatRoomsController < ApplicationController
       params.require(:chat_room).permit(:name)
     end
 
-    def get_chat_rooms
+    def chat_room_id
+      params[:id]
+    end
+
+    def page
+      params[:page]
+    end
+
+
+    def list_chat_rooms
       current_user.chat_rooms
-                  .distinct
                   .order(created_at: :desc)
-                  .page(params[:page])
+                  .page(page)
                   .per(ChatRoom::MESSAGES_PER_PAGE)
     end
 end
