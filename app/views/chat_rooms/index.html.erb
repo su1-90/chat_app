@@ -1,0 +1,19 @@
+<%= form_with model: @chat_room, local: true do |f| %>
+  <%= f.label :name, 'ルーム名' %>
+  <%= f.text_field :name %>
+  <%= f.submit '作成' %>
+<% end %>
+
+<% if @chat_rooms.any? %>
+  <% @chat_rooms.each do |chat_room| %>
+    <div>
+      <h2><%= link_to chat_room.name, chat_room_path(chat_room) %></h2>
+    </div>
+  <% end %>
+
+  <%= paginate @chat_rooms %>
+  
+  <% else %>
+    <p>チャットルームがありません。新しいチャットルームを作成してください。</p>
+  <% end %>
+<% end %>

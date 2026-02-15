@@ -16,7 +16,17 @@ class ChatRoom < ApplicationRecord
   validates :name, presence: true
 
   
+  MESSAGES_PER_PAGE = 50
+
   def member?(user)
     entries.exists?(user_id: user.id)
+  end
+
+  def messages_for_display(page:)
+    messages
+      .includes(:user)
+      .order(created_at: :desc)
+      .page(page)
+      .per(MESSAGES_PER_PAGE)
   end
 end
