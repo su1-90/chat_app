@@ -7,7 +7,7 @@
 <% if @chat_rooms.any? %>
   <% @chat_rooms.each do |chat_room| %>
     <div>
-      <h2><%= link_to chat_room.name, chat_room_path(chat_room) %></h2>
+      <h2><%= link_to chat_room.display_name_for(current_user), chat_room_path(chat_room) %>
     </div>
   <% end %>
 
