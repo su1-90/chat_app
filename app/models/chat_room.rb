@@ -9,7 +9,6 @@
 #
 class ChatRoom < ApplicationRecord
   MESSAGES_PER_PAGE = 50
-  DM_MEMBER_COUNT = 2
 
   has_many :messages, dependent: :destroy
 
@@ -19,12 +18,11 @@ class ChatRoom < ApplicationRecord
   # グループでのチャットを想定している.後ほどグループ名の追加を検討
   # validates :name, presence: true
 
-  scope :dm_between, ->(user_a_id, user_b_id) {
+  scope :between_users, ->(user_ids) {
     joins(:entries)
-      .where(entries: { user_id: [user_a_id, user_b_id] })
+      .where(entries: { user_id: user_ids })
       .group(:id)
-      .having('COUNT(DISTINCT entries.user_id) = ?', DM_MEMBER_COUNT)
-      .having('COUNT(entries.id) = ?', DM_MEMBER_COUNT)
+      .having('COUNT(entries.id) = ?', user_ids.size)
   }
   
   def display_name_for(viewer)
