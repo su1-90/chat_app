@@ -57,7 +57,9 @@ class ChatRoomsController < ApplicationController
     def create_params
       p = params.permit(:partner_id)
       partner_id = p[:partner_id].to_i
-      { partner_id: partner_id if partner_id.positive? && partner_id != current_user.id }
+      return {} unless partner_id.positive? && partner_id != current_user.id
+
+      { partner_id: partner_id }
     end
 
     def create_room!(user_ids, name: nil)
