@@ -1,5 +1,11 @@
 <%= form_with model: @chat_room, local: true do |f| %>
   <%= f.label :name, 'ルーム名' %>
+
+  <% @friends.each do |friend| %>
+    <%= check_box_tag "user_ids[]", friend.id %>
+    <%= friend.username %>
+  <% end %>
+
   <%= f.text_field :name %>
   <%= f.submit '作成' %>
 <% end %>
@@ -7,7 +13,7 @@
 <% if @chat_rooms.any? %>
   <% @chat_rooms.each do |chat_room| %>
     <div>
-      <h2><%= link_to chat_room.display_name_for(current_user), chat_room_path(chat_room) %>
+      <h2><%= link_to chat_room.display_name_for(current_user), chat_room_path(chat_room) %></h2>
     </div>
   <% end %>
 

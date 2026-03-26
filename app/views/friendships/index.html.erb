@@ -5,6 +5,7 @@
     <p>
       ⚫︎ <%= friend.username %>
 
+      <%# chat_rooms_path(user_ids: [friend.id])%>
       <%= button_to 'チャット開始',
                     chat_rooms_path(partner_id: friend.id),
                     method: :post %>

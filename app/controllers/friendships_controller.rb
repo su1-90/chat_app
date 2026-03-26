@@ -16,7 +16,6 @@ class FriendshipsController < ApplicationController
   end
 
   # 友達解除
-  # params[:id] ← 後で直す（privateメソッドに入れる）
   def destroy
     friendship = current_user.friendships.find(params[:id])
     friendship.update!(status: :inactive)
