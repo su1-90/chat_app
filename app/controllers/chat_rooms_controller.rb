@@ -9,29 +9,18 @@ class ChatRoomsController < ApplicationController
   end
 
   def create
-    partner_id = member_id_params[:partner_id]
-    
-    if partner_id
-      all_user_ids = [current_user.id, partner_id]
-
-      room = 
-        ChatRoom.between_users(all_user_ids).take ||
-        create_room!([partner_id])
-
-      redirect_to room
-      return
-    else
       user_ids = member_id_params[:user_ids]
-      all_user_ids = [current_user.id] + user_ids
+      
+      all_user_ids = user_ids + [current_user.id]
 
       room = 
         ChatRoom.between_users(all_user_ids).take ||
         create_room!(user_ids, name: chat_room_params[:name])
-      
-      redirect_to room, flash: { notice: 'チャットルームを作成しました' }
 
-    end
+      redirect_to room
+      return
   end
+
 
   def show
     inputs = show_params
@@ -57,16 +46,12 @@ class ChatRoomsController < ApplicationController
     end
     
     def member_id_params
-      p = params.permit(:partner_id, user_ids: [])
+      p = params.permit(user_ids: [])
 
-      partner_id = p[:partner_id].to_i
       user_ids = (p[:user_ids] || []).map(&:to_i)
                                     .select { |id| id.positive? && id != current_user.id }
 
-      { 
-        partner_id: (partner_id if partner_id.positive? && partner_id != current_user.id),
-        user_ids: user_ids
-      }
+      { user_ids: user_ids }
     end
 
     def create_room!(user_ids, name: nil)
@@ -89,9 +74,9 @@ class ChatRoomsController < ApplicationController
     end
 
     def chat_room_params
-      params.require(:chat_room).permit(:name)
+      params.permit(chat_room: [:name]).dig(:chat_room, :name)
     end
-    
+
     def show_params
       p = params.permit(:id, :page)
       

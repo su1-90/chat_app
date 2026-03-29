@@ -5,9 +5,8 @@
     <p>
       ⚫︎ <%= friend.username %>
 
-      <%# chat_rooms_path(user_ids: [friend.id])%>
       <%= button_to 'チャット開始',
-                    chat_rooms_path(partner_id: friend.id),
+                    chat_rooms_path(user_ids: [friend.id]),
                     method: :post %>
       
       <% if (friendship = @friendships_by_friend_id[friend.id]) %>
