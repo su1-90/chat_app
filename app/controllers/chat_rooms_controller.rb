@@ -10,17 +10,15 @@ class ChatRoomsController < ApplicationController
 
   def create
       user_ids = member_id_params[:user_ids]
-      
-      all_user_ids = user_ids + [current_user.id]
+      all_user_ids = (user_ids + [current_user.id])
 
-      room = 
-        ChatRoom.between_users(all_user_ids).take ||
-        create_room!(user_ids, name: chat_room_params[:name])
+      room = ChatRoom.find_or_create_between_room!(
+        all_user_ids,
+        name: chat_room_params
+      )
 
       redirect_to room
-      return
   end
-
 
   def show
     inputs = show_params
@@ -52,25 +50,6 @@ class ChatRoomsController < ApplicationController
                                     .select { |id| id.positive? && id != current_user.id }
 
       { user_ids: user_ids }
-    end
-
-    def create_room!(user_ids, name: nil)
-      ChatRoom.transaction do
-        all_user_ids = ([current_user.id] + user_ids).sort
-        room_id = ChatRoom.between_users(all_user_ids).pick(:id)
-        existing_room = ChatRoom.lock.find_by(id: room_id) if room_id
-        return existing_room if existing_room
-        
-        room = ChatRoom.create!(name: name)
-
-        room.entries.create!(user_id: current_user.id)
-
-        user_ids.each do |user_id|
-          room.entries.create!(user_id: user_id)
-        end
-
-        room
-      end
     end
 
     def chat_room_params
