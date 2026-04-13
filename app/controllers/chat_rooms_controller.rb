@@ -9,15 +9,15 @@ class ChatRoomsController < ApplicationController
   end
 
   def create
-      user_ids = member_id_params[:user_ids]
-      all_user_ids = (user_ids + [current_user.id])
+    user_ids = create_params[:user_ids]
+    all_user_ids = (user_ids.push(current_user.id))
 
-      room = ChatRoom.find_or_create_between_room!(
-        all_user_ids,
-        name: chat_room_params
-      )
+    room = ChatRoom.find_or_create_between_room!(
+      all_user_ids,
+      name: chat_room_params
+    )
 
-      redirect_to room
+    redirect_to room
   end
 
   def show
@@ -43,7 +43,7 @@ class ChatRoomsController < ApplicationController
                   .per(ChatRoom::MESSAGES_PER_PAGE)
     end
     
-    def member_id_params
+    def create_params
       p = params.permit(user_ids: [])
 
       user_ids = (p[:user_ids] || []).map(&:to_i)
