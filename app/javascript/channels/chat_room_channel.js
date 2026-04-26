@@ -1,15 +1,28 @@
 import consumer from "channels/consumer"
 
-consumer.subscriptions.create("ChatRoomChannel", {
-  connected() {
-    // Called when the subscription is ready for use on the server
-  },
+const element = document.getElementById('messages')
 
-  disconnected() {
-    // Called when the subscription has been terminated by the server
-  },
+if (element) {
+  const roomId = element.dataset.roomId
 
-  received(data) {
-    // Called when there's incoming data on the websocket for this channel
-  }
-});
+  consumer.subscriptions.create(
+    { channel: 'ChatRoomChannel', chat_room_id: roomId },
+    {
+      connected() {
+        console.log('ChatRoomChannel connected')
+      },
+
+      disconnected() {
+        console.log('ChatRoomChannel disconnected')
+      },
+
+      received(data) {
+        const messages = document.getElementById('messages')
+        console.log('message element', messages)
+        if (messages) {
+          messages.insertAdjacentHTML('beforeend', data.message)
+        }
+      }
+    }
+  )
+}
