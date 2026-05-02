@@ -1,12 +1,12 @@
 <h1><%= @chat_room.display_name_for(current_user) %></h1>
 
-<div id = 'messages' data-room-id='<%= @chat_room.id %>'>
-  <% @messages.each do |message| %>
-    <%= render partial: 'messages/message', locals: { message: message } %>
-  <% end %>
+<%= turbo_stream_from @chat_room %>
+
+<div id = 'messages' >
+  <%= render @messages %>
 </div>
 
-<%= form_with model: [@chat_room, @message], id: 'message-form' do |form| %>
+<%= form_with model: [@chat_room, @message] do |form| %>
   <div>
     <%= form.text_area :body, placeholder: 'メッセージを入力してください' %>
   </div>
