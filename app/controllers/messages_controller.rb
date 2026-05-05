@@ -4,7 +4,6 @@ class MessagesController < ApplicationController
   def create
     @chat_room = ChatRoom.find(chat_room_id)
 
-    # 権限チェックが増えたらbefore_actionに切り出す
     unless @chat_room.member?(current_user)
       return head :forbidden
     end
@@ -12,9 +11,19 @@ class MessagesController < ApplicationController
     @message = @chat_room.messages.build(message_params.merge(user: current_user))
 
     if @message.save
-      head :no_content
+      @message = Message.new
+
+      render turbo_stream: turbo_stream.update(
+        'message_form',
+        partial: 'messages/form',
+        locals: { chat_room: @chat_room, message: @message }
+      )
     else
-      render json: { errors: @message.errors.full_messages }, status: :unprocessable_entity
+      render turbo_stream: turbo_stream.update(
+        'message_form',
+        partial: 'messages/form',
+        locals: { chat_room: @chat_room, message: @message }
+      ), status: :unprocessable_entity
     end
   end
   

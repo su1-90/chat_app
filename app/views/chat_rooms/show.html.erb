@@ -6,19 +6,8 @@
   <%= render @messages %>
 </div>
 
-<%= form_with model: [@chat_room, @message] do |form| %>
-  <div>
-    <%= form.text_area :body, placeholder: 'メッセージを入力してください' %>
-  </div>
-  <%= form.submit '送信' %>
-  
-  <% if @message.errors.any? %>
-    <ul>
-      <% @message.errors.full_messages.each do |msg| %>
-        <li><%= msg %></li>
-      <% end %>
-    </ul>
-  <% end %>
-<% end %>
+<div id='message_form' >
+  <%= render 'messages/form', chat_room: @chat_room, message: @message %>
+</div>
 
 <%= paginate @messages %>
