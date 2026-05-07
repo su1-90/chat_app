@@ -14,4 +14,9 @@ class Message < ApplicationRecord
   belongs_to :chat_room
 
   validates :body, presence: true, length: { maximum: 100 }
+
+  after_create_commit -> { 
+    broadcast_append_to chat_room,
+      target: 'messages' }
+
 end

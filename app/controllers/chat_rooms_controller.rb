@@ -3,32 +3,21 @@ class ChatRoomsController < ApplicationController
 
   def index
     @chat_room = ChatRoom.new
-    @chat_rooms = list_chat_rooms(index_params)
+    @chat_rooms = list_chat_rooms(page_params)
+
+    @friends = current_user.friends
   end
 
   def create
-    partner_id = create_params[:partner_id]
-    
-    if partner_id
-      all_user_ids = [current_user.id, partner_id]
-      User.find(partner_id)
+    user_ids = create_params[:user_ids]
+    all_user_ids = (user_ids.push(current_user.id))
 
-      room = 
-        ChatRoom.between_users(all_user_ids).take ||
-        create_room!([partner_id])
+    room = ChatRoom.find_or_create_between_room!(
+      all_user_ids,
+      name: chat_room_params
+    )
 
-      redirect_to room
-      return
-    else
-      all_user_ids = [current_user.id]
-
-      room = 
-        ChatRoom.between_users(all_user_ids).take ||
-        create_room!([], name: chat_room_params[:name])
-      
-      redirect_to room, flash: { notice: 'チャットルームを作成しました' }
-
-    end
+    redirect_to room
   end
 
   def show
@@ -42,7 +31,7 @@ class ChatRoomsController < ApplicationController
   end
 
   private
-    def index_params
+    def page_params
       p = params.permit(:page)
       { page: normalize_page(p[:page]) }
     end
@@ -55,36 +44,18 @@ class ChatRoomsController < ApplicationController
     end
     
     def create_params
-      p = params.permit(:partner_id)
-      partner_id = p[:partner_id].to_i
-      return {} unless partner_id.positive? && partner_id != current_user.id
+      p = params.permit(user_ids: [])
 
-      { partner_id: partner_id }
+      user_ids = (p[:user_ids] || []).map(&:to_i)
+                                    .select { |id| id.positive? && id != current_user.id }
+
+      { user_ids: user_ids }
     end
-
-    def create_room!(user_ids, name: nil)
-      ChatRoom.transaction do
-        all_user_ids = ([current_user.id] + user_ids).sort
-        existing_room = ChatRoom.between_users(all_user_ids).lock.take
-        return existing_room if existing_room
-        
-        room = ChatRoom.create!(name: name)
-
-        room.entries.create!(user_id: current_user.id)
-
-        user_ids.each do |user_id|
-          room.entries.create!(user_id: user_id)
-        end
-
-        room
-      end
-    end
-
 
     def chat_room_params
-      params.require(:chat_room).permit(:name)
+      params.permit(chat_room: [:name]).dig(:chat_room, :name)
     end
-    
+
     def show_params
       p = params.permit(:id, :page)
       

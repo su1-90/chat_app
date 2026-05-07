@@ -1,0 +1,15 @@
+<%= form_with model: [chat_room, message], id: 'message_form' do |form| %>
+  <div>
+    <%= form.text_area :body, placeholder: 'メッセージを入力してください' %>
+  </div>
+
+  <%= form.submit '送信' %>
+
+  <% if message.errors.any? %>
+    <ul>
+      <% message.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  <% end %>
+<% end %>
