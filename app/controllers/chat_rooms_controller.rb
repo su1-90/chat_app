@@ -66,5 +66,4 @@ class ChatRoomsController < ApplicationController
       n = raw.to_i
       [n, 1].max
     end
-    
 end

@@ -1,3 +1,10 @@
+<%# CSSでグループ名をクリックしたら表示されるという動きにする %>
+<% @chat_room.users.each do |user| %>
+  <p>
+    <%= user.username %>
+  </p>
+<% end %>
+
 <h1><%= @chat_room.display_name_for(current_user) %></h1>
 
 <%= turbo_stream_from @chat_room %>
