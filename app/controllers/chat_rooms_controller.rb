@@ -46,8 +46,10 @@ class ChatRoomsController < ApplicationController
     def create_params
       p = params.permit(user_ids: [])
 
+      friend_ids = current_user.friends.pluck(:id)
+
       user_ids = (p[:user_ids] || []).map(&:to_i)
-                                    .select { |id| id.positive? && id != current_user.id }
+                                    .select { |id| id.positive? && friend_ids.include?(id) }
 
       { user_ids: user_ids }
     end
