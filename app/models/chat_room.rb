@@ -2,10 +2,11 @@
 #
 # Table name: chat_rooms
 #
-#  id         :bigint           not null, primary key
-#  name       :string
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id            :bigint           not null, primary key
+#  name          :string
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  members_count :integer          default(0), not null
 #
 class ChatRoom < ApplicationRecord
   MESSAGES_PER_PAGE = 50
@@ -20,7 +21,7 @@ class ChatRoom < ApplicationRecord
 
   scope :with_members, ->(user_ids) {
     joins(:entries)
-      .where(entries: { user_id: user_ids })
+      .where(entries: { user_id: user_ids }, members_count: user_ids.size)
       .group(:id)
       .having('COUNT(entries.id) = ?', user_ids.size)
   }
@@ -33,7 +34,7 @@ class ChatRoom < ApplicationRecord
       existing_room = lock.find_by(id: room_id) if room_id
       return existing_room if existing_room
 
-      room = create!(name: name)
+      room = create!(name: name, members_count: sorted_ids.size)
 
       sorted_ids.each do |user_id|
         room.entries.create!(user_id: user_id)
