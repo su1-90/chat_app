@@ -9,12 +9,12 @@ class ChatRoomsController < ApplicationController
   end
 
   def create
-    user_ids = create_params[:user_ids]
-    all_user_ids = (user_ids.push(current_user.id))
+    participant_ids = valid_participant_ids
+    participant_ids << current_user.id
 
     room = ChatRoom.find_or_create_between_room!(
-      all_user_ids,
-      name: chat_room_params
+      participant_ids,
+      name: room_name
     )
 
     redirect_to room
@@ -30,7 +30,9 @@ class ChatRoomsController < ApplicationController
     @message = @chat_room.messages.build(user: current_user)
   end
 
+
   private
+
     def page_params
       p = params.permit(:page)
       { page: normalize_page(p[:page]) }
@@ -43,18 +45,25 @@ class ChatRoomsController < ApplicationController
                   .per(ChatRoom::MESSAGES_PER_PAGE)
     end
     
-    def create_params
-      p = params.permit(user_ids: [])
-
-      friend_ids = current_user.friends.pluck(:id)
-
-      user_ids = (p[:user_ids] || []).map(&:to_i)
-                                    .select { |id| id.positive? && friend_ids.include?(id) }
-
-      { user_ids: user_ids }
+    def requested_user_ids
+      params.permit(user_ids: [])[:user_ids] || []
     end
 
-    def chat_room_params
+    def valid_participant_ids
+      friend_ids = current_user.friends.pluck(:id)
+
+      requested_user_ids
+        .map(&:to_i)
+        .select do |id|
+          valid_friend_id?(id, friend_ids)
+        end
+    end
+
+    def valid_friend_id?(id, friend_ids)
+      id.positive? && friend_ids.include?(id)
+    end
+
+    def room_name
       params.permit(chat_room: [:name]).dig(:chat_room, :name)
     end
 
