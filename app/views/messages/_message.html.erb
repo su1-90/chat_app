@@ -1,8 +1,18 @@
-<div class="msg">
-  <div class="msg_meta">
+<div id='<%= dom_id(message) %>'>
+  <div class='msg_meta'>
     <%= message.user.username.presence || message.user.email %>
   </div>
-  <div class="msg_body">
+
+  <div class='msg_body'>
     <%= message.body %>
   </div>
+
+  <% viewer = local_assigns.fetch(:viewer, nil) %>
+
+  <% if message.user == viewer %>
+    <%= button_to '削除',
+                  chat_room_message_path(message.chat_room, message),
+                  method: :delete,
+                  form: { data: { turbo_confirm: '削除しますか？' } } %>
+  <% end %>
 </div>

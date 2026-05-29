@@ -10,7 +10,9 @@
 <%= turbo_stream_from @chat_room %>
 
 <div id = 'messages' >
-  <%= render @messages %>
+  <% @messages.each do |message| %>
+    <%= render 'messages/message', message: message, viewer: current_user %>
+  <% end %>
 </div>
 
 <div id='message_form' >
