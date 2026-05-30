@@ -27,6 +27,17 @@ class MessagesController < ApplicationController
     end
   end
   
+  def destroy
+    @chat_room = ChatRoom.find(chat_room_id)
+    @message = @chat_room.messages.find(destroy_params)
+
+    if @message.user_id == current_user.id
+      @message.destroy
+      render turbo_stream: turbo_stream.remove(@message)
+    else
+      head :forbidden
+    end
+  end
 
   private
 
@@ -38,4 +49,7 @@ class MessagesController < ApplicationController
       params.require(:message).permit(:body)
     end
   
+    def destroy_params
+      params[:id]
+    end
 end

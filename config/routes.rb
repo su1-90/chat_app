@@ -11,9 +11,8 @@ Rails.application.routes.draw do
   resources :friendships, only: %i[index destroy]
 
   # チャットルームとメッセージの管理
-  # messagesのdestroyは「誰が消せる？」の仕様が固まってから
   resources :chat_rooms, only: %i[index create show] do
-    resources :messages, only: %i[create]
+    resources :messages, only: %i[create destroy]
   end
 
   get 'up' => 'rails/health#show', as: :rails_health_check
