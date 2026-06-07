@@ -2,13 +2,11 @@ class MessagesController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    @chat_room = ChatRoom.find(chat_room_id)
+    @chat_room = current_user.chat_rooms.find(params[:chat_room_id])
 
-    unless @chat_room.member?(current_user)
-      return head :forbidden
-    end
-
-    @message = @chat_room.messages.build(message_params.merge(user: current_user))
+    @message = @chat_room.messages.build(
+      message_params.merge(user: current_user)
+    )
 
     if @message.save
       @message = Message.new
@@ -28,28 +26,19 @@ class MessagesController < ApplicationController
   end
   
   def destroy
-    @chat_room = ChatRoom.find(chat_room_id)
-    @message = @chat_room.messages.find(destroy_params)
+    @message = current_user.messages.find(params[:id])
 
-    if @message.user_id == current_user.id
-      @message.destroy
+    if @message.destroy
       render turbo_stream: turbo_stream.remove(@message)
     else
-      head :forbidden
+      head :unprocessable_entity
     end
   end
 
   private
-
-    def chat_room_id
-      params[:chat_room_id]
-    end
   
     def message_params
       params.require(:message).permit(:body)
     end
-  
-    def destroy_params
-      params[:id]
-    end
+    
 end
