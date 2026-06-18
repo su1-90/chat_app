@@ -2,7 +2,7 @@ class MessagesController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    @chat_room = current_user.chat_rooms.find(create_params)
+    @chat_room = current_user.chat_rooms.find(params[:chat_room_id])
 
     @message = @chat_room.messages.build(
       message_params.merge(user: current_user)
@@ -24,9 +24,9 @@ class MessagesController < ApplicationController
       ), status: :unprocessable_entity
     end
   end
-  
+
   def destroy
-    @message = current_user.messages.find(destroy_params)
+    @message = current_user.messages.find(params[:id])
 
     if @message.destroy
       render turbo_stream: turbo_stream.remove(@message)
@@ -36,16 +36,8 @@ class MessagesController < ApplicationController
   end
 
   private
-  
-    def create_params
-      params.require(:chat_room_id)
-    end
 
     def message_params
       params.require(:message).permit(:body)
-    end
-    
-    def destroy_params
-      params.require(:id)
     end
 end
