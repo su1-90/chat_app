@@ -2,8 +2,7 @@ class MessagesController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    inputs = create_params
-    @chat_room = current_user.chat_rooms.find(inputs[:chat_room_id])
+    @chat_room = current_user.chat_rooms.find(create_param[:chat_room_id])
 
     @message = @chat_room.messages.build(
       message_params.merge(user: current_user)
@@ -27,8 +26,7 @@ class MessagesController < ApplicationController
   end
 
   def destroy
-    inputs = destroy_params
-    @message = current_user.messages.find(inputs[:id])
+    @message = current_user.messages.find(destroy_param[:id])
 
     if @message.destroy
       render turbo_stream: turbo_stream.remove(@message)
@@ -38,8 +36,9 @@ class MessagesController < ApplicationController
   end
 
   private
-
-    def create_params
+    # param：単一値取得
+    # params：属性ハッシュ/複数値取得
+    def create_param
       params.permit(:chat_room_id)
     end
 
@@ -47,7 +46,7 @@ class MessagesController < ApplicationController
       params.require(:message).permit(:body)
     end
 
-    def destroy_params
+    def destroy_param
       params.permit(:id)
     end
 end
