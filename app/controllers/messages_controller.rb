@@ -2,7 +2,7 @@ class MessagesController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    @chat_room = current_user.chat_rooms.find(create_param[:chat_room_id])
+    @chat_room = current_user.chat_rooms.find(create_params[:chat_room_id])
 
     @message = @chat_room.messages.build(
       message_params.merge(user: current_user)
@@ -26,7 +26,7 @@ class MessagesController < ApplicationController
   end
 
   def destroy
-    @message = current_user.messages.find(destroy_param[:id])
+    @message = current_user.messages.find(destroy_params[:id])
 
     if @message.destroy
       render turbo_stream: turbo_stream.remove(@message)
@@ -36,17 +36,17 @@ class MessagesController < ApplicationController
   end
 
   private
-    # param：単一値取得
-    # params：属性ハッシュ/複数値取得
-    def create_param
-      params.permit(:chat_room_id)
-    end
 
     def message_params
       params.require(:message).permit(:body)
     end
 
-    def destroy_param
+    # ルート由来のスカラー値だが_paramsの命名規約に揃える
+    def create_params
+      params.permit(:chat_room_id)
+    end
+
+    def destroy_params
       params.permit(:id)
     end
 end
