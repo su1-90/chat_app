@@ -12,7 +12,7 @@ Rails.application.routes.draw do
 
   # チャットルームとメッセージの管理
   resources :chat_rooms, only: %i[index create show] do
-    resources :messages, only: %i[create destroy edit update]
+    resources :messages, only: %i[create destroy]
   end
 
   get 'up' => 'rails/health#show', as: :rails_health_check
