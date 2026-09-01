@@ -8,15 +8,30 @@ class ChatRoomsController < ApplicationController
     @friends = current_user.friends
   end
 
+  # def create
+  #   participant_ids = valid_participant_ids
+  #   participant_ids << current_user.id
+
+  #   room = ChatRoom.transaction do
+  #     new_room = ChatRoom.create!(
+  #       name: room_name,
+  #       room_type: :group
+  #     )
+
+  #     participant_ids.each do |user_id|
+  #       new_room.entries.create!(user_id: user_id)
+  #     end
+
+  #     new_room
+  #   end
+
+  #   redirect_to room
+  # end
+
   def create
     participant_ids = valid_participant_ids
     participant_ids << current_user.id
-
-    room = ChatRoom.find_or_create_between_room!(
-      participant_ids,
-      name: room_name
-    )
-
+    room = ChatRoom.create_group!(name: room_name, member_ids: participant_ids)
     redirect_to room
   end
 

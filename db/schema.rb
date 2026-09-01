@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_25_054635) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_06_211017) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,6 +19,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_25_054635) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "members_count", default: 0, null: false
+    t.integer "room_type", default: 0, null: false
+    t.index ["room_type"], name: "index_chat_rooms_on_room_type"
   end
 
   create_table "entries", force: :cascade do |t|
