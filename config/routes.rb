@@ -2,7 +2,9 @@ Rails.application.routes.draw do
   root 'home#index'
 
   devise_for :users
-  resources :users, only: [:index]
+  resources :users, only: [:index] do
+    resource :direct_message, only: [:create]
+  end
 
   # 友達申請の管理
   resources :friend_requests, only: %i[create update destroy]
