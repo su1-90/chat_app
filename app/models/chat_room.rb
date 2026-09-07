@@ -17,7 +17,7 @@ class ChatRoom < ApplicationRecord
   MESSAGES_PER_PAGE = 50
   DM_MEMBERS_COUNT = 2
 
-  enum room_type: { dm: 0, group: 1}, _prefix: true
+  enum :room_type, { dm: 0, group: 1 }, prefix: true
 
   has_many :messages, dependent: :destroy
 
