@@ -34,17 +34,29 @@ class ChatRoom < ApplicationRecord
   }
 
   def self.find_or_create_dm!(user_a, user_b)
-    transaction do
+    with_dm_lock(user_a, user_b) do
       room_id = dm_between(user_a, user_b).pick(:id)
-      existing_room = lock.find_by(id: room_id) if room_id
-      return existing_room if existing_room
-
-      room = create!(room_type: :dm)
-      [user_a, user_b].each { |user| room.entries.create!(user: user) }
-      
-      room
+      existing_room = find_by(id: room_id) if room_id
+      existing_room || create_dm!(user_a, user_b)
     end
   end
+
+  def self.with_dm_lock(user_a, user_b)
+    id_1, id_2 = [user_a.id, user_b.id].sort
+    transaction do
+      connection.execute(
+        sanitize_sql_array(["SELECT pg_advisory_xact_lock(?, ?)", id_1, id_2])
+      )
+      yield
+    end
+  end
+
+  def self.create_dm!(user_a, user_b)
+    room = create!(room_type: :dm)
+    [user_a, user_b].each { |user| room.entries.create!(user: user) }
+    room
+  end
+  private_class_method :create_dm!
 
   def self.create_group!(name:, member_ids:)
     transaction do
