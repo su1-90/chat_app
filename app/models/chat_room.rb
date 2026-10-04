@@ -15,6 +15,7 @@
 #
 class ChatRoom < ApplicationRecord
   MESSAGES_PER_PAGE = 50
+  MIN_GROUP_MEMBERS = 3
   DM_MEMBERS_COUNT = 2
 
   enum :room_type, { dm: 0, group: 1 }, prefix: true
@@ -24,6 +25,9 @@ class ChatRoom < ApplicationRecord
   has_many :entries, dependent: :destroy
   has_many :users, through: :entries
 
+  # 脱退による人数割れ（3人未満のグループ化）の検証は別PRで実装する。
+  # 脱退機能が未実装のため、現時点では作成時のみバリデーションで検証する。
+  validate :enough_group_members, on: :create
 
   scope :dm_between, ->(user_a, user_b) {
     room_type_dm
@@ -59,11 +63,11 @@ class ChatRoom < ApplicationRecord
   private_class_method :create_dm!
 
   def self.create_group!(name:, member_ids:)
-    transaction do
-      room = create!(name: name, room_type: :group)
-      member_ids.each { |id| room.entries.create!(user_id: id) }
-      room
-    end
+    ids = Array(member_ids).compact.uniq
+    room = new(name: name, room_type: :group)
+    ids.each { |id| room.entries.build(user_id: id) }
+    room.save!
+    room
   end
 
   def display_name_for(viewer)
@@ -84,4 +88,13 @@ class ChatRoom < ApplicationRecord
       .page(page)
       .per(MESSAGES_PER_PAGE)
   end
+
+  private
+
+    def enough_group_members
+      return unless room_type_group?
+      return if entries.size >= MIN_GROUP_MEMBERS
+
+      errors.add(:base, "グループには#{MIN_GROUP_MEMBERS}人以上のメンバーが必要です")
+    end
 end

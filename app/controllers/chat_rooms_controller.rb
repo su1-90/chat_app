@@ -13,6 +13,11 @@ class ChatRoomsController < ApplicationController
     participant_ids << current_user.id
     room = ChatRoom.create_group!(name: room_name, member_ids: participant_ids)
     redirect_to room
+  rescue ActiveRecord::RecordInvalid => e
+    @chat_room = e.record
+    @chat_rooms = list_chat_rooms(page_params)
+    @friends = current_user.friends
+    render :index, status: :unprocessable_entity
   end
 
   def show
