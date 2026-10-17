@@ -10,7 +10,7 @@
   <%= f.label :name, 'ルーム名' %>
 
   <% @friends.each do |friend| %>
-    <%= check_box_tag "user_ids[]", friend.id %>
+    <%= check_box_tag "user_ids[]", friend.id, @selected_ids.include?(friend.id) %>
     <%= friend.username %>
   <% end %>
 

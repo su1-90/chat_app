@@ -4,8 +4,8 @@ class ChatRoomsController < ApplicationController
   def index
     @chat_room = ChatRoom.new
     @chat_rooms = list_chat_rooms(page_params)
-
     @friends = current_user.friends
+    @selected_ids = []
   end
 
   def create
@@ -17,6 +17,7 @@ class ChatRoomsController < ApplicationController
     @chat_room = e.record
     @chat_rooms = list_chat_rooms(page_params)
     @friends = current_user.friends
+    @selected_ids = requested_user_ids.map(&:to_i)
     render :index, status: :unprocessable_entity
   end
 
