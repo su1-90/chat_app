@@ -1,4 +1,13 @@
 class ChatRoomsController < ApplicationController
+  class InvalidParticipantsError < StandardError
+    attr_reader :invalid_ids
+
+    def initialize(invalid_ids)
+      @invalid_ids = invalid_ids
+      super('友達ではないユーザーが含まれています')
+    end
+  end
+  
   before_action :authenticate_user!
 
   def index
@@ -50,14 +59,14 @@ class ChatRoomsController < ApplicationController
       params.permit(user_ids: [])[:user_ids] || []
     end
 
-    def valid_participant_ids
+    def valid_participant_ids!
       friend_ids = current_user.friends.pluck(:id)
+      requested = requested_user_ids.map(&:to_i).uniq
 
-      requested_user_ids
-        .map(&:to_i)
-        .select do |id|
-          valid_friend_id?(id, friend_ids)
-        end
+      valid, invalid = requested.partition { |id| valid_friend_id?(id, friend_ids) }
+      raise InvalidParticipantsError, invalid if invalid.any?
+
+      valid
     end
 
     def valid_friend_id?(id, friend_ids)
