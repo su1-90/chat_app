@@ -18,16 +18,24 @@ class ChatRoomsController < ApplicationController
   end
 
   def create
-    participant_ids = valid_participant_ids
-    participant_ids << current_user.id
-    room = ChatRoom.create_group!(name: room_name, member_ids: participant_ids)
+    friend_ids = valid_participant_ids!
+
+    if friend_ids.empty?
+      return render_index_with_error('チャット相手を選択してください')
+    end
+
+    room = 
+      if friend_ids.size == 1
+        friend = User.find(friend_ids.first)
+        ChatRoom.find_or_create_dm!(current_user, friend)
+      else
+        member_ids = friend_ids + [current_user.id]
+        ChatRoom.create_group!(name: room_name, member_ids: member_ids)
+      end
+
     redirect_to room
-  rescue ActiveRecord::RecordInvalid => e
-    @chat_room = e.record
-    @chat_rooms = list_chat_rooms(page_params)
-    @friends = current_user.friends
-    @selected_ids = requested_user_ids.map(&:to_i)
-    render :index, status: :unprocessable_entity
+  rescue InvalidParticipantsError => e
+    render_index_with_error(e.message)    
   end
 
   def show
@@ -55,6 +63,17 @@ class ChatRoomsController < ApplicationController
                   .per(ChatRoom::MESSAGES_PER_PAGE)
     end
     
+    def render_index_with_error(message)
+      @chat_room = ChatRoom.new
+      @chat_room.errors.add(:base, message)
+
+      @chat_rooms = list_chat_rooms(page_params)
+      @friends = current_user.friends
+      @selected_ids = requested_user_ids.map(&:to_i)
+
+      render :index, status: :unprocessable_entity
+    end
+
     def requested_user_ids
       params.permit(user_ids: [])[:user_ids] || []
     end
