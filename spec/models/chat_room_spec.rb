@@ -3,10 +3,15 @@
 # Table name: chat_rooms
 #
 #  id            :bigint           not null, primary key
+#  members_count :integer          default(0), not null
 #  name          :string
+#  room_type     :integer          default("dm"), not null
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
-#  members_count :integer          default(0), not null
+#
+# Indexes
+#
+#  index_chat_rooms_on_room_type  (room_type)
 #
 require 'rails_helper'
 
